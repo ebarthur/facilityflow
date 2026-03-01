@@ -29,6 +29,20 @@ app.use('/api/facilities', facilitiesRouter);
 app.use('/api/bookings', bookingsRouter);
 app.use('/api/users', usersRouter);
 
+// Serve the authenticated version as default (before static files)
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index-with-auth.html');
+});
+
+// Serve static files
+app.use(express.static('public'));
+
+// Fallback to original version if needed
+app.get('/original', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+
 // Health check endpoint (before database-dependent routes)
 app.get('/api/health', (req, res) => {
     res.json({

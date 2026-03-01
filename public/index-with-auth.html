@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Facility Booking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            --dark-bg: #1a1a2e;
+            --card-bg: #ffffff;
+            --text-primary: #2d3436;
+            --text-secondary: #636e72;
+            --border-radius: 20px;
+            --shadow-light: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 15px 40px rgba(0, 0, 0, 0.12);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Auth Section - New Design */
+        .auth-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-section::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 100px 100px;
+            animation: gridMove 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
+        }
+
+        .auth-section::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(88, 86, 214, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow:
+                0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                0 0 0 1px rgba(255, 255, 255, 0.18);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+
+        .auth-card .card-body {
+            padding: 3rem 3.5rem !important;
+        }
+
+        /* Modern Navbar */
+        .navbar {
+            background: var(--primary-gradient) !important;
+            padding: 1.2rem 0;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem !important;
+            margin: 0 0.3rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Modern Cards */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            background: var(--card-bg);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-4px);
+        }
+
+        .facility-card {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .facility-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .facility-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .facility-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        /* Time Slots */
+        .time-slot {
+            cursor: pointer;
+            border-radius: 15px;
+            border: 2px solid #e0e6ed;
+            background: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot:hover:not(.booked) {
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .time-slot.selected {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .time-slot.booked {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #ef9a9a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Booking Cards */
+        .booking-card {
+            border-left: 5px solid transparent;
+            border-image: var(--primary-gradient) 1;
+            background: white;
+            margin-bottom: 1rem;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .booking-card.cancelled {
+            border-image: var(--secondary-gradient) 1;
+            opacity: 0.7;
+            background: #fafafa;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 12px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            border: none;
+            letter-spacing: 0.3px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+        }
+
+        .btn-warning {
+            background: var(--warning-gradient);
+            color: #2d3436;
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #868f96 0%, #596164 100%);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .bg-primary {
+            background: var(--primary-gradient) !important;
+        }
+
+        .bg-success {
+            background: var(--success-gradient) !important;
+        }
+
+        .bg-warning {
+            background: var(--warning-gradient) !important;
+        }
+
+        .bg-danger {
+            background: var(--danger-gradient) !important;
+        }
+
+        .bg-info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #e0e6ed;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Spinner */
+        .spinner-border {
+            border-width: 3px;
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: 15px;
+            border: none;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Section Headers */
+        h2 {
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h4, h5 {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Loading States */
+        .loading {
+            display: none;
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* Card Headers */
+        .card-header {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef1ff 100%);
+            border-bottom: none;
+            padding: 1.2rem 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Input Groups */
+        .input-group-text {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px 0 0 12px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 5px;
+        }
+
+        /* Animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Dashboard Stats Cards */
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-light);
+            border-top: 4px solid transparent;
+        }
+
+        /* Enhanced Container */
+        .container {
+            max-width: 1400px;
+        }
+
+        /* Display headers */
+        .display-5 {
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .lead {
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        /* Tab styles - Modern Toggle Design */
+        .nav-tabs {
+            border: none;
+            background: #f1f3f5;
+            border-radius: 50px;
+            padding: 0.4rem;
+            display: inline-flex;
+            width: 100%;
+        }
+
+        .nav-tabs .nav-link {
+            border-radius: 50px;
+            border: none;
+            color: #495057;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #667eea;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: scale(1.02);
+        }
+
+        /* Dropdown */
+        .dropdown-menu {
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            margin: 0.25rem 0.5rem;
+            padding: 0.6rem 1rem;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef1ff 100%);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .display-5 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .btn-lg {
+                padding: 0.6rem 1.2rem;
+                font-size: 1rem;
+            }
+
+            .auth-card .card-body {
+                padding: 2rem !important;
+            }
+        }
+
+        /* Enhanced focus states */
+        *:focus {
+            outline: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        .btn:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+
+        /* Auth Page Specific Styles */
+        .auth-section .form-control {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e9ecef;
+            padding: 1rem 1.2rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-section .form-control:focus {
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.1), 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .auth-section .form-label {
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-section .form-label i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+
+        .auth-section .form-check-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .auth-section .form-check-input:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        .auth-section .btn-primary {
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-section .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .auth-section .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .auth-section .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .auth-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .auth-divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .auth-divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 1rem;
+            position: relative;
+            color: #adb5bd;
+            font-size: 0.85rem;
+        }
+
+        /* Social Login Buttons (optional) */
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .social-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Floating particles animation */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float-particle 15s linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 2s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 4s; }
+        .particle:nth-child(4) { left: 40%; animation-delay: 6s; }
+        .particle:nth-child(5) { left: 50%; animation-delay: 8s; }
+        .particle:nth-child(6) { left: 60%; animation-delay: 10s; }
+        .particle:nth-child(7) { left: 70%; animation-delay: 12s; }
+        .particle:nth-child(8) { left: 80%; animation-delay: 14s; }
+    </style>
+</head>
+
+<body>
+    <!-- Login Section -->
+    <div id="login-section" class="auth-section">
+        <!-- Floating Particles -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-7 col-lg-5">
+                    <div class="card auth-card">
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="auth-logo">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <h1 class="h3 fw-bold mb-2" style="color: #2d3436;">FacilityFlow</h1>
+                                <p class="auth-subtitle">Your modern facility booking platform</p>
+                            </div>
+
+                            <!-- Modern Tab Navigation -->
+                            <ul class="nav nav-tabs mb-4" id="authTabs" role="tablist">
+                                <li class="nav-item flex-fill" role="presentation">
+                                    <button class="nav-link active w-100" id="login-tab" data-bs-toggle="tab"
+                                        data-bs-target="#login" type="button" role="tab">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                    </button>
+                                </li>
+                                <li class="nav-item flex-fill" role="presentation">
+                                    <button class="nav-link w-100" id="register-tab" data-bs-toggle="tab"
+                                        data-bs-target="#register" type="button" role="tab">
+                                        <i class="fas fa-user-plus me-2"></i>Sign Up
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="authTabContent">
+                                <!-- Login Tab -->
+                                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                                    <form id="login-form">
+                                        <div class="mb-4">
+                                            <label for="login-email" class="form-label">
+                                                <i class="fas fa-envelope"></i>Email Address
+                                            </label>
+                                            <input type="email" class="form-control" id="login-email"
+                                                   placeholder="Enter your email" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="login-password" class="form-label">
+                                                <i class="fas fa-lock"></i>Password
+                                            </label>
+                                            <input type="password" class="form-control" id="login-password"
+                                                   placeholder="Enter your password" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input type="checkbox" class="form-check-input me-2" id="admin-login">
+                                                <label class="form-check-label" for="admin-login">
+                                                    <i class="fas fa-user-shield me-2" style="color: #f093fb;"></i>
+                                                    Login as Administrator
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Sign In to Your Account
+                                        </button>
+                                    </form>
+                                    <div class="auth-footer">
+                                        Don't have an account? <a href="#" onclick="document.getElementById('register-tab').click(); return false;">Create one now</a>
+                                    </div>
+                                </div>
+
+                                <!-- Register Tab -->
+                                <div class="tab-pane fade" id="register" role="tabpanel">
+                                    <form id="register-form">
+                                        <div class="mb-4">
+                                            <label for="register-name" class="form-label">
+                                                <i class="fas fa-user"></i>Full Name
+                                            </label>
+                                            <input type="text" class="form-control" id="register-name"
+                                                   placeholder="Enter your full name" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="register-email" class="form-label">
+                                                <i class="fas fa-envelope"></i>Email Address
+                                            </label>
+                                            <input type="email" class="form-control" id="register-email"
+                                                   placeholder="Enter your email" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="register-password" class="form-label">
+                                                <i class="fas fa-lock"></i>Password
+                                            </label>
+                                            <input type="password" class="form-control" id="register-password"
+                                                   placeholder="Create a strong password" required minlength="6">
+                                            <small class="form-text" style="color: #6c757d; font-size: 0.85rem;">
+                                                <i class="fas fa-info-circle me-1"></i>Minimum 6 characters
+                                            </small>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input type="checkbox" class="form-check-input me-2" id="admin-register">
+                                                <label class="form-check-label" for="admin-register">
+                                                    <i class="fas fa-user-shield me-2" style="color: #11998e;"></i>
+                                                    Register as Administrator
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fas fa-user-plus me-2"></i>Create Your Account
+                                        </button>
+                                    </form>
+                                    <div class="auth-footer">
+                                        Already have an account? <a href="#" onclick="document.getElementById('login-tab').click(); return false;">Sign in here</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-university"></i> FacilityFlow
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <!-- User Navigation -->
+                    <div id="user-nav">
+                        <a class="nav-link" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a class="nav-link" href="#" onclick="showSection('facilities')">
+                            <i class="fas fa-home"></i> Facilities
+                        </a>
+                    </div>
+
+                    <!-- Admin Navigation -->
+                    <div id="admin-nav" style="display: none;">
+                        <a class="nav-link" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a class="nav-link" href="#" onclick="showSection('facilities')">
+                            <i class="fas fa-home"></i> Facilities
+                        </a>
+                        <a class="nav-link" href="#" onclick="showSection('all-bookings')">
+                            <i class="fas fa-calendar-check"></i> All Bookings
+                        </a>
+                        <a class="nav-link" href="#" onclick="showSection('approval-portal')">
+                            <i class="fas fa-gavel"></i> Approvals
+                        </a>
+                    </div>
+
+                    <div class="navbar-nav">
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> <span id="current-user-name">User</span>
+                                <span class="badge bg-warning ms-1" id="user-role-badge">User</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="logout()">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container mt-4">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section">
+                <div class="row mb-5">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h2 class="display-5 mb-3"><i class="fas fa-chart-line"></i> Dashboard</h2>
+                        <p class="text-muted lead">Your facility booking overview at a glance</p>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="total-facilities-count">0</h4>
+                                        <p class="card-text">Total Facilities</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-building fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="total-bookings-count">0</h4>
+                                        <p class="card-text">Total Bookings</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-calendar-check fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="pending-bookings-count">0</h4>
+                                        <p class="card-text">Pending Bookings</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-clock fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="today-bookings-count">0</h4>
+                                        <p class="card-text">Today's Bookings</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-calendar-day fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Recent Bookings -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-calendar"></i> Recent Bookings</h5>
+                                <span class="badge bg-warning" id="dashboard-pending-count">0</span>
+                            </div>
+                            <div class="card-body p-2">
+                                <div id="user-bookings-list">
+                                    <p class="text-muted">Loading bookings...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary" onclick="showSection('facilities')">
+                                        <i class="fas fa-building"></i> Browse Facilities
+                                    </button>
+                                    <button class="btn btn-success" onclick="showSection('bookings')">
+                                        <i class="fas fa-calendar"></i> My Bookings
+                                    </button>
+                                    <div id="admin-quick-actions" style="display: none;">
+                                        <hr>
+                                        <button class="btn btn-info" onclick="showSection('all-bookings')">
+                                            <i class="fas fa-calendar-check"></i> Bookings Management
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Facilities Section -->
+            <div id="facilities-section" class="section">
+                <div class="row mb-5">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h2 class="display-5 mb-3"><i class="fas fa-building-columns"></i> Discover Our Facilities</h2>
+                        <p class="text-muted lead">Explore and book premium campus facilities with instant confirmation</p>
+                    </div>
+                    <div class="col-lg-2 text-end" id="facilities-add-btn" style="display:none;">
+                        <button class="btn btn-success"
+                            onclick="showSection('manage-facilities'); showAddFacilityForm();">
+                            <i class="fas fa-plus-circle"></i> Add New
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-4" id="facilities-list">
+                    <div class="col-12 text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading facilities...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Section -->
+            <div id="booking-section" class="section" style="display: none;">
+                <button class="btn btn-secondary mb-3" onclick="showSection('facilities')">
+                    <i class="fas fa-arrow-left"></i> Back to Facilities
+                </button>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1 class="navbar-brand mb-0 h1">
+                                <i class="fas fa-university text-primary"></i> UniSpace
+                            </h1>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 id="booking-facility-name">Select Date & Time</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="booking-date" class="form-label">Select Date:</label>
+                                        <input type="date" class="form-control" id="booking-date" min="">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Available Time Slots:</label>
+                                        <div id="time-slots" class="row">
+                                            <p class="text-muted">Select a date to view available slots</p>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="user-name" class="form-label">Your Name:</label>
+                                        <input type="text" class="form-control" id="user-name"
+                                            placeholder="Enter your name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="user-email" class="form-label">Your Email:</label>
+                                        <input type="email" class="form-control" id="user-email"
+                                            placeholder="Enter your email">
+                                    </div>
+                                    <button class="btn btn-primary" onclick="createBooking()" id="create-booking-btn"
+                                        disabled>
+                                        <i class="fas fa-calendar-plus"></i> Create Booking
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Facility Details</h5>
+                                </div>
+                                <div class="card-body" id="facility-details">
+                                    <p class="text-muted">Select a facility to view details</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Bookings Section -->
+            <div id="bookings-section" class="section" style="display: none;">
+                <div class="row mb-5">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h2 class="display-5 mb-3"><i class="fas fa-bookmark"></i> My Bookings</h2>
+                        <p class="text-muted lead">Track and manage all your facility reservations</p>
+                    </div>
+                </div>
+
+                <div id="my-bookings-list">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mt-2">Loading your bookings...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: Manage Facilities Section -->
+            <div id="manage-facilities-section" class="section" style="display: none;">
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2><i class="fas fa-cog"></i> Manage Facilities</h2>
+                        <p class="text-muted">Add, edit, or remove campus facilities</p>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-success" onclick="showAddFacilityForm()">
+                            <i class="fas fa-plus"></i> Add Facility
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="facility-search"
+                                placeholder="Search facilities by name or location..." onkeyup="filterFacilities()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="capacity-filter" onchange="filterFacilities()">
+                            <option value="">All Capacities</option>
+                            <option value="small">Small (1-10)</option>
+                            <option value="medium">Medium (11-50)</option>
+                            <option value="large">Large (51+)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="sort-facilities" onchange="sortFacilities()">
+                            <option value="name">Sort by Name</option>
+                            <option value="capacity">Sort by Capacity</option>
+                            <option value="location">Sort by Location</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Add Facility Form -->
+                <div id="add-facility-form" class="card mb-4" style="display: none;">
+                    <div class="card-header">
+                        <h5>Add New Facility</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="facility-form">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="facility-name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="facility-name" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="facility-location" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="facility-location" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="facility-capacity" class="form-label">Capacity</label>
+                                    <input type="number" class="form-control" id="facility-capacity" min="1" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Facility
+                            </button>
+                            <button type="button" class="btn btn-secondary ms-2" onclick="hideAddFacilityForm()">
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="admin-facilities-list">
+                    <p class="text-muted">Loading facilities...</p>
+                </div>
+            </div>
+
+            <!-- Admin: Booking Approval Portal -->
+            <div id="approval-portal-section" class="section" style="display: none;">
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2><i class="fas fa-gavel"></i> Booking Approval Portal</h2>
+                        <p class="text-muted">Review and approve pending booking requests</p>
+                    </div>
+                </div>
+
+                <!-- Approval Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h4 id="approval-pending-count">0</h4>
+                                <small>Pending Approval</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h4 id="approval-today-count">0</h4>
+                                <small>Today's Bookings</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h4 id="approval-approved-count">0</h4>
+                                <small>Approved Today</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h4 id="approval-rejected-count">0</h4>
+                                <small>Rejected Today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="approval-search"
+                                placeholder="Search pending bookings..." onkeyup="filterPendingBookings()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="approval-status-filter" onchange="filterPendingBookings()">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="approval-date-filter"
+                            onchange="filterPendingBookings()">
+                        <option value="">Filter by Date</option>
+                        </input>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" onclick="clearApprovalFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pending Bookings List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-clock"></i> Pending Bookings</h5>
+                        <span class="badge bg-warning" id="pending-list-count">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="pending-bookings-list">
+                            <p class="text-muted">Loading pending bookings...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history"></i> Recent Approval Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="recent-approvals-list">
+                            <p class="text-muted">No recent actions...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: All Bookings Section -->
+            <div id="all-bookings-section" class="section" style="display: none;">
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2><i class="fas fa-calendar-check"></i> All Bookings</h2>
+                        <p class="text-muted">View and manage all bookings in the system</p>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h4 id="pending-count">0</h4>
+                                <small>Pending Approval</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h4 id="confirmed-count">0</h4>
+                                <small>Confirmed</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h4 id="cancelled-count">0</h4>
+                                <small>Cancelled</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h4 id="total-count">0</h4>
+                                <small>Total Bookings</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="booking-search" placeholder="Search bookings..."
+                                onkeyup="filterBookings()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="status-filter" onchange="filterBookings()">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="date-filter" onchange="filterBookings()"
+                            placeholder="Filter by Date">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" onclick="clearBookingFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div id="all-bookings-list">
+                    <p class="text-muted">Loading bookings...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+        <div id="alert-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app-with-auth.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Facility Booking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #1a1a2e;
+            --card-bg: #ffffff;
+            --text-primary: #2d3436;
+            --text-secondary: #636e72;
+            --border-radius: 20px;
+            --shadow-light: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 15px 40px rgba(0, 0, 0, 0.12);
+            --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Modern Navbar */
+        .navbar {
+            background: var(--primary-gradient) !important;
+            padding: 1.2rem 0;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem !important;
+            margin: 0 0.3rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Modern Cards */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            background: var(--card-bg);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-4px);
+        }
+
+        .facility-card {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+
+        .facility-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .facility-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .facility-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        /* Time Slots */
+        .time-slot {
+            cursor: pointer;
+            border-radius: 15px;
+            border: 2px solid #e0e6ed;
+            background: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--success-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .time-slot:hover:not(.booked) {
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .time-slot.selected {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .time-slot.booked {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #ef9a9a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Booking Cards */
+        .booking-card {
+            border-left: 5px solid transparent;
+            border-image: var(--primary-gradient) 1;
+            background: white;
+            margin-bottom: 1rem;
+        }
+
+        .booking-card.cancelled {
+            border-image: var(--secondary-gradient) 1;
+            opacity: 0.7;
+            background: #fafafa;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 12px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            border: none;
+            letter-spacing: 0.3px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #868f96 0%, #596164 100%);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #e0e6ed;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Spinner */
+        .spinner-border {
+            border-width: 3px;
+        }
+
+        /* Alerts */
+        .alert {
+            border-radius: 15px;
+            border: none;
+            box-shadow: var(--shadow-medium);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Section Headers */
+        h2 {
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h4, h5 {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Loading States */
+        .loading {
+            display: none;
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* Card Headers */
+        .card-header {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef1ff 100%);
+            border-bottom: none;
+            padding: 1.2rem 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Input Groups */
+        .input-group-text {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px 0 0 12px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 5px;
+        }
+
+        /* Animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            animation: fadeInUp 0.5s ease;
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-light);
+            border-top: 4px solid transparent;
+        }
+
+        .stats-card.facilities {
+            border-image: var(--primary-gradient) 1;
+        }
+
+        .stats-card.bookings {
+            border-image: var(--success-gradient) 1;
+        }
+
+        /* Icon Styles */
+        .fa-building, .fa-calendar, .fa-home {
+            margin-right: 0.5rem;
+        }
+
+        /* Page Transitions */
+        .section {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Enhanced Container */
+        .container {
+            max-width: 1200px;
+        }
+
+        /* Display headers */
+        .display-5 {
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .lead {
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        /* Gap utilities */
+        .g-4 {
+            gap: 1.5rem !important;
+        }
+
+        /* Shadow utilities */
+        .shadow-sm {
+            box-shadow: var(--shadow-light) !important;
+        }
+
+        .shadow-lg {
+            box-shadow: var(--shadow-heavy) !important;
+        }
+
+        /* Sticky positioning */
+        @media (min-width: 992px) {
+            .sticky-top-custom {
+                position: sticky;
+                top: 20px;
+            }
+        }
+
+        /* Loading state improvements */
+        .spinner-border {
+            animation: spinner-border 0.75s linear infinite;
+        }
+
+        /* Hover effects for interactive elements */
+        button:hover, .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active, .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .display-5 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .btn-lg {
+                padding: 0.6rem 1.2rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Custom badge styles */
+        .badge {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced focus states */
+        *:focus {
+            outline: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        .btn:focus {
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-university"></i> FacilityFlow
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#" onclick="showSection('facilities')">
+                    <i class="fas fa-th-large"></i> Browse
+                </a>
+                <a class="nav-link" href="#" onclick="showSection('bookings')">
+                    <i class="fas fa-bookmark"></i> My Bookings
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <!-- Facilities Section -->
+        <div id="facilities-section" class="section">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 mb-3"><i class="fas fa-building-columns"></i> Discover Our Facilities</h2>
+                    <p class="text-muted lead">Explore and book premium campus facilities with instant confirmation</p>
+                </div>
+            </div>
+
+            <div class="row g-4" id="facilities-list">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border" style="color: #667eea; width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading facilities...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Section -->
+        <div id="booking-section" class="section" style="display: none;">
+            <button class="btn btn-secondary mb-4" onclick="showSection('facilities')">
+                <i class="fas fa-arrow-left"></i> Back to Facilities
+            </button>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-lg">
+                        <div class="card-header">
+                            <h4 id="facility-name" class="mb-0"><i class="fas fa-calendar-check"></i> Book Your Slot</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <label for="booking-date" class="form-label"><i class="fas fa-calendar-alt"></i> Select Date</label>
+                                <input type="date" class="form-control form-control-lg" id="booking-date" min="">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label"><i class="fas fa-clock"></i> Choose Time Slot</label>
+                                <div id="time-slots" class="row g-3">
+                                    <p class="text-muted text-center py-4">Select a date to view available slots</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="user-name" class="form-label"><i class="fas fa-user"></i> Your Name</label>
+                                    <input type="text" class="form-control" id="user-name" placeholder="Enter your full name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="user-email" class="form-label"><i class="fas fa-envelope"></i> Your Email</label>
+                                    <input type="email" class="form-control" id="user-email" placeholder="your.email@example.com">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-lg w-100 mt-3" onclick="createBooking()" id="create-booking-btn" disabled>
+                                <i class="fas fa-check-circle"></i> Confirm Booking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-lg" style="position: sticky; top: 20px;">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Facility Info</h5>
+                        </div>
+                        <div class="card-body" id="facility-details">
+                            <p class="text-muted text-center py-5">Select a facility to view details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Bookings Section -->
+        <div id="bookings-section" class="section" style="display: none;">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 mb-3"><i class="fas fa-bookmark"></i> My Bookings</h2>
+                    <p class="text-muted lead">Track and manage all your facility reservations</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-6 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <label for="user-email-bookings" class="form-label">Find Your Bookings</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="user-email-bookings" placeholder="Enter your email address">
+                                <button class="btn btn-primary" onclick="loadUserBookings()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="user-bookings-list">
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Enter your email to view your bookings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+        <div id="alert-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
